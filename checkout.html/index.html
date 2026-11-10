@@ -617,6 +617,10 @@ async function registrarPedidoEntrega() {
       })
     });
     const resposta = await r.text();
+    if (r.status === 404) {
+      concluirPedidoLocal();
+      return;
+    }
     let data;
     try { data = JSON.parse(resposta); }
     catch {
@@ -630,7 +634,16 @@ async function registrarPedidoEntrega() {
       concluirPedidoLocal();
       return;
     }
-    if (!r.ok) throw new Error(data.error || 'Não foi possível registrar o pedido.');
+    if (!r.ok) {
+      const erro = data.error;
+      const mensagem = typeof erro === 'string' && erro.trim() ? erro
+        : erro && typeof erro === 'object'
+          ? typeof erro.message === 'string' ? erro.message
+            : typeof erro.mensagem === 'string' ? erro.mensagem
+              : JSON.stringify(erro)
+          : 'Não foi possível registrar o pedido.';
+      throw new Error(mensagem);
+    }
     if (!data.pedido || !Number.isFinite(data.amount)) throw new Error('Resposta do pedido inválida.');
     concluirPedidoEntrega({ pedido: data.pedido, total: data.amount / 100 });
   } catch (e) {
