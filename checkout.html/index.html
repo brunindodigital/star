@@ -1,0 +1,698 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Finalizar pedido</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=TikTok+Sans:wght@400;500;600;700;800&amp;display=swap">
+<style>
+/* Checkout mobile only (padrão TikTok Shop, ver SPRINTS.md) */
+:root { --page: #fff; --bg: #f4f4f5; --text1: #161823; --text2: rgba(22,24,35,.75); --text3: rgba(22,24,35,.5);
+  --neutral3: rgba(22,24,35,.12); --neutral4: rgba(22,24,35,.06); --primary: #fe2c55; --teal: #0e8a7d; --gold: #b7791f; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: #ececee; }
+body { max-width: 480px; margin: 0 auto; min-height: 100vh; background: var(--bg); color: var(--text1); box-shadow: 0 0 24px rgba(0,0,0,.08);
+  font-family: 'TikTok Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.4; padding-bottom: calc(150px + env(safe-area-inset-bottom)); }
+button, input, select, textarea { font-family: inherit; }
+button { cursor: pointer; }
+a { color: inherit; }
+body.lock { overflow: hidden; }
+[hidden] { display: none !important; }
+
+/* cabeçalho com frases que sobem */
+.hdr { position: sticky; top: 0; z-index: 50; height: 52px; display: flex; align-items: center; background: #fff; border-bottom: 1px solid var(--neutral4); }
+.hbtn { width: 48px; height: 48px; border: none; background: none; display: flex; align-items: center; justify-content: center; color: var(--text1); flex-shrink: 0; }
+.tick { flex: 1; height: 24px; overflow: hidden; position: relative; margin-right: 48px; }
+.tk { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+.tk svg { flex-shrink: 0; }
+.tk.in { animation: tIn .45s ease; } .tk.out { animation: tOut .45s ease forwards; }
+@keyframes tIn { from { transform: translateY(100%); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes tOut { to { transform: translateY(-100%); opacity: 0; } }
+.hdr-t { flex: 1; text-align: center; font-size: 17px; font-weight: 700; margin-right: 48px; }
+
+/* blocos */
+.blk { background: #fff; margin-bottom: 8px; padding: 14px 16px; }
+.row { display: flex; align-items: center; gap: 8px; }
+.end-row { justify-content: space-between; }
+.end-row b { display: flex; align-items: center; gap: 6px; font-size: 15px; }
+.add-end { border: none; background: none; color: var(--primary); font-size: 15px; font-weight: 600; }
+.end-box { display: flex; gap: 10px; align-items: flex-start; }
+.end-box .tx { flex: 1; font-size: 14px; }
+.end-box .tx b { font-size: 15px; }
+.end-box .tx span { color: var(--text3); }
+.link { border: none; background: none; color: var(--primary); font-weight: 600; font-size: 14px; }
+.loja-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.loja-h b { font-size: 15px; }
+.nota-btn { border: none; background: none; color: var(--text3); font-size: 13px; display: flex; align-items: center; gap: 2px; }
+.nota-in { width: 100%; margin-top: 10px; border: 1px solid var(--neutral3); border-radius: 8px; padding: 8px 10px; font-size: 16px; resize: none; }
+.item { display: flex; gap: 10px; }
+.item img { width: 84px; height: 84px; border-radius: 6px; object-fit: cover; background: var(--neutral4); flex-shrink: 0; }
+.item .bd { flex: 1; min-width: 0; }
+.item h3 { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item .var { font-size: 13px; color: var(--text3); }
+.tag { display: inline-block; font-size: 11px; font-weight: 600; color: #8a5a00; background: #fdf3df; border-radius: 3px; padding: 0 5px; margin-top: 2px; }
+.ip { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 4px; }
+.ip .p { color: var(--primary); font-weight: 700; font-size: 16px; }
+.ip s { font-size: 12px; color: var(--text3); }
+.ip .off { font-size: 12px; color: var(--primary); }
+.qty { display: flex; align-items: center; border: 1px solid var(--neutral3); border-radius: 4px; }
+.qty button { width: 28px; height: 26px; border: none; background: none; font-size: 16px; color: var(--text1); }
+.qty button:disabled { color: var(--text3); }
+.qty span { width: 30px; text-align: center; font-size: 14px; font-weight: 600; border-left: 1px solid var(--neutral3); border-right: 1px solid var(--neutral3); line-height: 26px; }
+.desc-row { justify-content: space-between; }
+.desc-row b { display: flex; align-items: center; gap: 8px; font-size: 15px; }
+.desc-row span { color: var(--primary); font-weight: 600; }
+.sec-t { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+.sum { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; }
+.sum.sub { color: var(--text2); font-size: 13px; padding-left: 12px; }
+.sum .neg { color: var(--primary); }
+.sub-t { border: none; background: none; font: inherit; font-weight: 600; display: flex; align-items: center; gap: 4px; color: var(--text1); }
+.sub-t svg { transition: transform .2s; }
+.sub-t.closed svg { transform: rotate(180deg); }
+.tot { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--neutral4); }
+.tot b { font-size: 16px; }
+.tot .v { text-align: right; } .tot .v b { font-size: 17px; } .tot .v small { display: block; font-size: 12px; color: var(--text3); }
+.pm { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 0; text-align: left; color: var(--text1); }
+.pm .ic { width: 28px; display: flex; justify-content: center; flex-shrink: 0; }
+.pm .tx { flex: 1; font-size: 15px; font-weight: 500; }
+.pm .tx small { display: block; font-size: 12px; color: var(--text3); font-weight: 400; }
+.pm .rd { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--neutral3); flex-shrink: 0; }
+.pm.on .rd { border: 6px solid var(--primary); }
+.terms { font-size: 12px; color: var(--text3); padding: 6px 16px 14px; }
+
+/* barra fixa */
+.foot { position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 60; background: #fff; box-shadow: 0 -1px 0 var(--neutral4); }
+.save { display: flex; align-items: center; gap: 6px; padding: 7px 16px; background: #ffeef2; color: var(--primary); font-size: 13px; font-weight: 600; }
+.ft { padding: 8px 16px calc(10px + env(safe-area-inset-bottom)); }
+.ft .t { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.ft .t b { font-size: 16px; } .ft .t span { color: var(--primary); font-weight: 700; font-size: 18px; }
+.fin { width: 100%; height: 52px; border: none; border-radius: 999px; background: var(--primary); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15; }
+.fin b { font-size: 16px; display: flex; align-items: center; gap: 6px; }
+.fin small { font-size: 12px; opacity: .9; font-variant-numeric: tabular-nums; }
+.fin:disabled { opacity: .6; }
+
+/* diálogos */
+.bg { position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 24px; }
+.dlg { width: 100%; max-width: 320px; background: #fff; border-radius: 14px; overflow: hidden; text-align: center; }
+.dlg h2 { font-size: 18px; padding: 22px 20px 8px; }
+.dlg p { font-size: 14px; color: var(--text2); padding: 0 20px 18px; }
+.dlg .bts { display: flex; border-top: 1px solid var(--neutral4); }
+.dlg .bts button { flex: 1; height: 50px; border: none; background: none; font-size: 15px; font-weight: 600; color: var(--text1); text-decoration: underline; }
+.dlg .bts button + button { border-left: 1px solid var(--neutral4); }
+.bird { padding: 18px; }
+.bird svg { width: 150px; height: 120px; margin: 0 auto; display: block; }
+.bird h2 { padding: 8px 4px 16px; font-size: 18px; line-height: 1.3; }
+.bird h2 span { color: var(--primary); }
+.bird .b1, .bird .b2 { width: 100%; height: 46px; border-radius: 999px; border: none; font-size: 16px; font-weight: 700; }
+.bird .b1 { background: var(--primary); color: #fff; } .bird .b2 { background: var(--bg); color: var(--text1); margin-top: 8px; }
+
+/* tela de endereço */
+.addr { position: fixed; inset: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 200; background: var(--bg); display: flex; flex-direction: column; }
+.addr .scroll { flex: 1; overflow-y: auto; padding-bottom: 20px; }
+.order-screen { z-index: 400; background: #fff; }
+.order-screen .order-content { width: 100%; max-width: 480px; margin: auto; padding: 24px; text-align: center; }
+.order-screen .ok { width: 100%; }
+.order-screen .ok .support-link { margin-top: 18px; }
+.order-screen .order-loading { display: block; width: 32px; height: 32px; border: 3px solid rgba(255,255,255,.55); border-top-color: var(--primary); border-radius: 50%; animation: sp .8s linear infinite; }
+.order-screen .retry { width: 100%; height: 48px; margin-top: 18px; border: 0; border-radius: 999px; background: var(--primary); color: #fff; font-size: 16px; font-weight: 700; }
+.cov { display: flex; align-items: center; gap: 6px; padding: 10px 16px; background: #fff7e8; font-size: 13px; color: var(--text2); }
+.cov b { color: var(--gold); }
+.grp-t { font-size: 13px; color: var(--text3); padding: 16px 16px 8px; }
+.fld { background: #fff; }
+.fld label { display: flex; align-items: center; gap: 8px; padding: 0 16px; border-bottom: 1px solid var(--neutral4); min-height: 50px; }
+.fld label:last-child { border-bottom: none; }
+.fld input, .fld select { flex: 1; min-width: 0; height: 50px; border: none; background: none; font-size: 16px; color: var(--text1); outline: none; }
+.fld select:invalid { color: var(--text3); }
+.fld .pre { color: var(--text2); font-size: 15px; white-space: nowrap; }
+.fld .two { display: flex; border-bottom: 1px solid var(--neutral4); } .fld .two label { flex: 1; border-bottom: none; } .fld .two label + label { border-left: 1px solid var(--neutral4); }
+.fld .err input { color: var(--primary); }
+.hint { font-size: 12px; color: var(--text3); padding: 6px 16px 0; }
+.sw { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 14px 16px; font-size: 15px; }
+.tg { width: 46px; height: 28px; border-radius: 14px; border: none; background: var(--neutral3); position: relative; }
+.tg::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: left .2s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+.tg.on { background: #20c997; } .tg.on::after { left: 21px; }
+.addr .foot2 { background: #fff; padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); }
+.addr .foot2 p { font-size: 12px; color: var(--text3); text-align: center; margin-bottom: 8px; }
+.addr .foot2 button { width: 100%; height: 48px; border: none; border-radius: 999px; background: var(--primary); color: #fff; font-size: 16px; font-weight: 700; }
+.addr .foot2 button:disabled { background: #fbb3c2; }
+
+/* janelas */
+.sheet { position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: 480px; z-index: 310; background: #fff; border-radius: 16px 16px 0 0; padding: 0 20px calc(20px + env(safe-area-inset-bottom)); text-align: center; animation: up .22s ease-out; }
+@keyframes up { from { transform: translate(-50%, 100%); } to { transform: translate(-50%, 0); } }
+.sheet .sh { display: flex; align-items: center; justify-content: center; height: 54px; font-size: 17px; font-weight: 700; position: relative; }
+.sheet .sh button { position: absolute; right: -12px; top: 3px; }
+.ok { padding: 30px 0; }
+.ok .ck { width: 64px; height: 64px; border-radius: 50%; background: #20c997; color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
+@keyframes sp { to { transform: rotate(360deg); } }
+.ok h2 { font-size: 20px; } .ok p { color: var(--text2); margin-top: 6px; }
+.ok a { display: block; margin-top: 18px; height: 48px; line-height: 48px; border-radius: 999px; background: var(--primary); color: #fff; font-weight: 700; text-decoration: none; }
+.toast { position: fixed; left: 50%; bottom: 170px; transform: translateX(-50%); background: rgba(22,24,35,.9); color: #fff; padding: 10px 16px; border-radius: 8px; font-size: 13px; z-index: 500; white-space: nowrap; }
+
+/* endereço preenchido + listras de envelope */
+.end-fill { display: flex; align-items: flex-start; gap: 8px; width: 100%; border: none; background: none; text-align: left; color: var(--text1); padding: 0; }
+.end-fill .tx { flex: 1; min-width: 0; }
+.end-fill b { font-size: 16px; display: block; }
+.end-fill span { display: block; font-size: 15px; margin-top: 4px; }
+.end-fill .chev { color: var(--text3); margin-top: 2px; flex-shrink: 0; }
+.envelope { height: 4px; margin: 14px -16px -14px; background: repeating-linear-gradient(90deg, #fe2c55 0 28px, transparent 28px 38px, #25f4ee 38px 66px, transparent 66px 76px); }
+.entrega { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: #eef8fb; font-size: 14px; font-weight: 500; }
+.entrega s { color: var(--text3); font-weight: 400; }
+.entrega b { font-weight: 700; }
+.desc-row { width: 100%; border: none; background: none; text-align: left; color: var(--text1); padding: 0; align-items: flex-start !important; }
+.desc-row b { margin-top: 3px; }
+.desc-row .dchev { margin-top: 7px; }
+.desc-row b { flex: 1; font-size: 16px; font-weight: 700; }
+.chips { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.chip { font-size: 15px; font-weight: 700; padding: 4px 10px; border-radius: 5px; white-space: nowrap; }
+.chip.f { background: #e0f8fa; color: #1ab3c4; } .chip.d { background: #ffeef2; color: var(--primary); }
+.dchev { color: var(--text3); flex-shrink: 0; margin-left: 4px; }
+/* carrinho vazio: esconde o resto do checkout */
+.cart-vazio { text-align: center; padding: 30px 10px 20px; }
+.cart-vazio b { font-size: 17px; } .cart-vazio p { color: var(--text3); margin: 6px 0 16px; }
+.cart-vazio a { display: inline-block; height: 44px; line-height: 44px; padding: 0 28px; border-radius: 999px; background: var(--primary); color: #fff; font-weight: 700; text-decoration: none; }
+body.vazio .blk:not(:nth-of-type(2)), body.vazio .terms, body.vazio .foot { display: none !important; }
+body.vazio #entrega, body.vazio .nota-btn, body.vazio #nota { display: none !important; }
+/* janela de cupons */
+.chip.r { background: #fff4e5; color: #b26a00; }
+.cs { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--neutral4); }
+.cs-l { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.cs-l b { color: var(--primary); font-size: 16px; }
+.cs-l small { font-size: 13px; color: var(--text2); }
+.cs-l .cs-p { color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cs-btn { height: 32px; padding: 0 14px; border-radius: 6px; border: none; background: var(--primary); color: #fff; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.cs-ok { color: #0e8a7d; font-size: 13px; font-weight: 600; text-align: right; }
+.cs-falta { color: #b26a00; font-size: 12px; text-align: right; max-width: 130px; }
+.cs-vazio { color: var(--text3); padding: 16px 0; }
+/* preloader: duas bolinhas trocando de lugar */
+.loader { position: fixed; inset: 0; z-index: 600; display: flex; align-items: center; justify-content: center; background: transparent; }
+.loader > div { width: 150px; height: 130px; border-radius: 10px; background: rgba(60,60,60,.92); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; color: #fff; font-weight: 700; font-size: 16px; }
+.dots { position: relative; width: 38px; height: 18px; }
+.dots i { position: absolute; top: 0; width: 18px; height: 18px; border-radius: 50%; }
+.dots .r { background: #fe2c55; animation: dr .9s ease-in-out infinite; z-index: 2; }
+.dots .c { background: #25f4ee; animation: dc .9s ease-in-out infinite; z-index: 1; }
+@keyframes dr { 0% { left: 0; z-index: 2; } 50% { left: 20px; z-index: 2; } 50.01% { z-index: 1; } 100% { left: 0; z-index: 1; } }
+@keyframes dc { 0% { left: 20px; z-index: 1; } 50% { left: 0; z-index: 1; } 50.01% { z-index: 2; } 100% { left: 20px; z-index: 2; } }
+</style>
+<script src="js/rastreio.js"></script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1796468168324547&ev=PageView&noscript=1" alt=""></noscript>
+</head>
+<body>
+
+<header class="hdr">
+  <button class="hbtn" id="back" aria-label="Voltar"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4 7 12l8 8"></path></svg></button>
+  <div class="tick" id="tick" aria-live="polite"></div>
+</header>
+
+<section class="blk">
+  <div class="row end-row" id="endVazio">
+    <b><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>Endereço de envio</b>
+    <button class="add-end" id="addEnd">+ Adicionar endereço</button>
+  </div>
+  <div id="endCheio" hidden="">
+    <button class="end-fill" id="altEnd" aria-label="Alterar endereço">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true" style="margin-top:2px;flex-shrink:0"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>
+      <span class="tx" id="endTx"></span>
+      <svg class="chev" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 5 7 7-7 7"></path></svg>
+    </button>
+    <div class="envelope"></div>
+  </div>
+</section>
+
+<section class="blk">
+  <div class="loja-h"><b id="lojaNome"></b><button class="nota-btn" id="notaBtn">Adicionar nota <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 5 7 7-7 7"></path></svg></button></div>
+  <div id="itens"></div>
+  <div class="entrega" id="entrega"></div>
+  <textarea class="nota-in" id="nota" rows="2" placeholder="Nota para a loja (opcional)" hidden=""></textarea>
+</section>
+
+<section class="blk">
+  <button type="button" class="row desc-row" id="descRow"><b><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fe2c55" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h15A1.5 1.5 0 0 1 21 7.5V10a2 2 0 0 0 0 4v2.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 16.5V14a2 2 0 0 0 0-4V7.5Z"></path><path d="m9 12 2 2 4-4" stroke-linecap="round"></path></svg>Desconto da loja</b><span class="chips" id="descLoja"></span><svg class="dchev" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 5 7 7-7 7"></path></svg></button>
+</section>
+
+<section class="blk">
+  <h2 class="sec-t">Resumo do pedido</h2>
+  <div class="sum"><button class="sub-t" id="subT">Subtotal do produto <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="m6 15 6-6 6 6"></path></svg></button><span id="sSub"></span></div>
+  <div id="subD">
+    <div class="sum sub"><span>Preço original</span><span id="sOrig"></span></div>
+    <div class="sum sub"><span>Desconto do produto</span><span class="neg" id="sProd"></span></div>
+    <div id="cupRows"></div>
+  </div>
+  <div class="sum"><button class="sub-t" id="envT">Subtotal de envio <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="m6 15 6-6 6 6"></path></svg></button><span id="sEnv"></span></div>
+  <div id="envD">
+    <div class="sum sub"><span>Taxa de envio</span><span id="sTaxa"></span></div>
+    <div class="sum sub" id="rEnvOff"><span>Desconto no envio</span><span class="neg" id="sEnvOff"></span></div>
+  </div>
+  <div class="tot"><b>Total</b><div class="v"><b id="sTot"></b><small>Impostos incluídos</small></div></div>
+</section>
+
+<section class="blk" role="radiogroup" aria-labelledby="paymentMethodTitle">
+  <h2 class="sec-t" id="paymentMethodTitle">Método de pagamento</h2>
+  <div class="pm on" role="radio" aria-checked="true">
+    <span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6h11v12H3zM14 10h4l3 3v5h-7z"></path><circle cx="7.5" cy="18" r="1.5"></circle><circle cx="17.5" cy="18" r="1.5"></circle><path d="M17 10v3h4"></path></svg></span>
+    <span class="tx">Pagar na entrega<small>Pague quando receber o pedido</small></span><span class="rd"></span>
+  </div>
+</section>
+<p class="terms">Ao fazer o pedido, você concorda com os Termos de Uso e Venda e com a Política de Privacidade da loja.</p>
+
+<footer class="foot">
+  <div class="save"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 14.5c1.8 2 5.2 2 7 0M9 9.5h.01M15 9.5h.01"></path></svg><span id="saveTx"></span></div>
+  <div class="ft">
+    <div class="t"><b id="totLbl"></b><span id="totFoot"></span></div>
+    <button class="fin" id="fin"><b><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v5.5c0 4.3 3 7.7 7 9 4-1.3 7-4.7 7-9V6l-7-3Z"></path><path d="m9 12 2 2 4-4" stroke-linecap="round"></path></svg>Finalizar pedido</b><small>O cupom expira em <time id="cupExp">--:--:--</time><span id="finFrete"></span></small></button>
+  </div>
+</footer>
+
+<!-- Adicionar endereço (ao abrir o checkout sem endereço) -->
+<div class="bg" id="dlgEnd" hidden="">
+  <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlgEndT">
+    <h2 id="dlgEndT">Adicionar endereço de envio</h2>
+    <p>Sua conta ainda não tem um endereço de envio. Adicione um para finalizar a compra.</p>
+    <div class="bts"><button id="maisTarde">Mais tarde</button><button id="dlgAdd">Adicionar</button></div>
+  </div>
+</div>
+
+<!-- passarinho: ao tentar sair do formulário de endereço -->
+<div class="bg" id="dlgBird" hidden="">
+  <div class="dlg bird" role="dialog" aria-modal="true" aria-labelledby="birdT">
+    <svg viewBox="0 0 150 120" aria-hidden="true">
+      <path d="M118 22c6 2 10 6 12 11M122 14c8 3 13 9 15 16" stroke="#ffcc33" stroke-width="3" fill="none" stroke-linecap="round"></path>
+      <ellipse cx="72" cy="62" rx="40" ry="34" fill="#4aa8ff"></ellipse>
+      <path d="M40 58c-14-6-26-2-32 6 12 2 22 6 30 12z" fill="#2f86e6"></path>
+      <path d="M78 52c12-16 34-18 44-8-10 0-20 6-26 16z" fill="#78c2ff"></path>
+      <circle cx="96" cy="50" r="15" fill="#4aa8ff"></circle>
+      <circle cx="100" cy="47" r="4.5" fill="#fff"></circle><circle cx="101.5" cy="47" r="2.3" fill="#161823"></circle>
+      <path d="M110 52l14 3-13 6z" fill="#ffb020"></path>
+      <circle cx="92" cy="58" r="3" fill="#ff8fab" opacity=".7"></circle>
+      <path d="M58 92c-2 8-6 12-12 14M78 94c2 7 0 12-4 16" stroke="#ff5a7a" stroke-width="5" fill="none" stroke-linecap="round"></path>
+      <circle cx="124" cy="78" r="13" fill="#ffcc33" stroke="#e0a800" stroke-width="2.5"></circle>
+      <text x="124" y="83" text-anchor="middle" font-size="14" font-weight="800" fill="#a06d00" font-family="Arial">$</text>
+      <path d="M110 70c4-2 8-2 11 1" stroke="#2f86e6" stroke-width="5" fill="none" stroke-linecap="round"></path>
+    </svg>
+    <h2 id="birdT">Não deixe o desconto de <span id="birdVal"></span> para trás. Adicione um endereço para finalizar a compra</h2>
+    <button class="b1" id="birdCont">Continuar editando</button>
+    <button class="b2" id="birdNao">Agora não</button>
+  </div>
+</div>
+
+<!-- tela: adicionar endereço (cria a conta do cliente ao salvar) -->
+<section class="addr" id="addr" hidden="" aria-label="Adicionar novo endereço">
+  <header class="hdr" style="position:static">
+    <button class="hbtn" id="addrBack" aria-label="Voltar"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4 7 12l8 8"></path></svg></button>
+    <div class="hdr-t">Adicionar novo endereço</div>
+  </header>
+  <div class="scroll">
+    <div class="cov"><svg viewBox="0 0 24 24" width="16" height="16" fill="#e0a800" aria-hidden="true"><path d="M12 3 5 6v5.5c0 4.3 3 7.7 7 9 4-1.3 7-4.7 7-9V6l-7-3Z"></path></svg>Você tem cobertura da <b>Garantia de entrega</b></div>
+    <div class="grp-t">Informações de contato</div>
+    <div class="fld">
+      <label><input id="fNome" autocomplete="name" placeholder="Nome completo"></label>
+      <label><span class="pre">BR +55</span><input id="fTel" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="Número de telefone" maxlength="15"></label>
+      <label><input id="fEmail" type="email" inputmode="email" autocomplete="email" placeholder="E-mail"></label>
+    </div>
+    <div class="grp-t">Informações de endereço</div>
+    <div class="fld">
+      <label><input id="fCep" inputmode="numeric" autocomplete="postal-code" placeholder="CEP" maxlength="9"></label>
+      <div class="two">
+        <label><select id="fUf" required=""><option value="" disabled="" selected="">Estado</option></select></label>
+        <label><input id="fCid" autocomplete="address-level2" placeholder="Cidade"></label>
+      </div>
+      <label><input id="fBai" placeholder="Bairro"></label>
+      <label><input id="fRua" autocomplete="address-line1" placeholder="Nome da rua"></label>
+      <label><input id="fNum" placeholder="Número (use " s="" n"="" se="" não="" houver)"=""></label>
+      <label><input id="fComp" placeholder="Apartamento, bloco, etc. (opcional)"></label>
+    </div>
+    <p class="hint" id="cepHint">Digite o CEP e o endereço é preenchido sozinho.</p>
+    <div class="grp-t">Informações fiscais</div>
+    <div class="fld"><label id="cpfLbl"><input id="fCpf" inputmode="numeric" placeholder="CPF (11 dígitos)" maxlength="14"></label></div>
+    <p class="hint">O CPF é usado para emitir a nota fiscal.</p>
+    <div class="grp-t">Definições</div>
+    <div class="sw"><span>Definir como padrão</span><button class="tg on" id="fPad" role="switch" aria-checked="true" aria-label="Definir como padrão"></button></div>
+  </div>
+  <div class="foot2">
+    <p>Leia a nossa Política de Privacidade para saber como usamos suas informações pessoais.</p>
+    <button id="salvar" disabled="">Salvar</button>
+  </div>
+</section>
+
+<!-- Cupons da loja -->
+<div class="bg" id="cupBg" hidden=""></div>
+<section class="sheet" id="cup" hidden="" aria-label="Cupons">
+  <div class="sh">Cupons da loja<button class="hbtn" id="cupX" aria-label="Fechar"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></div>
+  <div id="cupBody" style="text-align:left;max-height:60vh;overflow-y:auto"></div>
+</section>
+
+<section class="addr order-screen" id="order" hidden="" aria-label="Pedido confirmado">
+  <header class="hdr" style="position:static"><div class="hdr-t">Pedido confirmado</div></header>
+  <div class="order-content" id="orderBody" aria-live="polite"></div>
+</section>
+
+<div class="loader" id="loader" hidden="" role="status" aria-live="polite"><div><span class="dots"><i class="r"></i><i class="c"></i></span>Carregando…</div></div>
+
+<script src="js/dados.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const brl = v => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const lsGet = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+function toast(m) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 2400); }
+const lock = () => document.body.classList.toggle('lock', !!document.querySelector('.bg:not([hidden]), .addr:not([hidden])'));
+
+// ---------- itens: "Comprar agora" (?id=&qty=&var=) ou carrinho ----------
+const q = new URLSearchParams(location.search);
+// Carrinho único. Links antigos (?id=&qty=&var=) somam o item ao carrinho e a URL é limpa (evita somar de novo ao recarregar).
+if (q.get('id')) {
+  const c = lsGet('carrinho', []), v = q.get('var') || '', it = c.find(x => x.id === q.get('id') && x.var === v);
+  it ? it.qtd = Math.min(12, it.qtd + (+q.get('qty') || 1)) : c.push({ id: q.get('id'), qtd: +q.get('qty') || 1, var: v });
+  lsSet('carrinho', c); history.replaceState(null, '', 'checkout.html');
+}
+const montaItem = i => { const p = PRODUTOS.find(x => x.id === i.id); const v = p && p.precos && p.precos[i.var]; return p && { ...i, p, preco: v ? v.preco : p.preco, precoDe: v ? v.precoDe : p.precoDe, img: v && v.img || p.img }; };
+const imagemCheckout = src => src && !/^(?:[a-z]+:|\/\/|\/)/i.test(src) ? `../loja.html/${src}` : src;
+let itens = lsGet('carrinho', []).map(montaItem).filter(Boolean);
+const salvaCarrinho = () => { lsSet('carrinho', itens.map(({ id, qtd, var: v }) => ({ id, qtd, var: v }))); try { localStorage.setItem('cartQty', String(itens.reduce((s, i) => s + i.qtd, 0))); } catch (e) {} };
+$('lojaNome').textContent = LOJA.nome;
+
+// ---------- frases que sobem no cabeçalho ----------
+const P0 = itens[0] && itens[0].p;
+const ic = (d, c) => `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const FRASES = [
+  [ic('<path d="M12 3 5 6v5.5c0 4.3 3 7.7 7 9 4-1.3 7-4.7 7-9V6l-7-3Z"/><path d="m9 12 2 2 4-4"/>', '#e0a800'), 'Garantia de entrega'],
+  [ic('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/>', '#e0a800'), 'Segurança nos pagamentos'],
+  [ic('<path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-3 2-4 2-7 1 1 2 2 3 3 0-2-.5-4 0-6Z"/>', '#fe2c55'), `Sucesso de vendas! ${P0 ? P0.vendidos.toLocaleString('pt-BR') : ''} vendidos`],
+  [ic('<path d="m12 3 2.6 5.6 6.1.6-4.6 4.1 1.3 6L12 16.4 6.6 19.3l1.3-6L3.3 9.2l6.1-.6z"/>', '#ffbb00'), `Muito bem classificado! ${P0 ? P0.nota.toFixed(1) : ''}/5.0`],
+  [ic('<path d="M12 3 5 6v5.5c0 4.3 3 7.7 7 9 4-1.3 7-4.7 7-9V6l-7-3Z"/><path d="M13.6 9.6c-.4-.6-1-.9-1.6-.9-.9 0-1.7.5-1.7 1.2 0 1.7 3.4.9 3.4 2.6 0 .8-.8 1.2-1.7 1.2-.7 0-1.4-.3-1.8-.9M12 7.5v8"/>', '#e0a800'), 'Garantia de devolução do dinheiro'],
+  [ic('<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>', '#e0a800'), 'Garantia de pontualidade'],
+];
+let fi = 0;
+function frase(primeira) {
+  const [i, t] = FRASES[fi % FRASES.length], el = document.createElement('div');
+  el.className = 'tk' + (primeira ? '' : ' in'); el.innerHTML = i + t;
+  [...$('tick').children].forEach(o => { o.className = 'tk out'; setTimeout(() => o.remove(), 450); });
+  $('tick').appendChild(el); fi++;
+}
+frase(true); setInterval(() => frase(false), 2800);
+
+// ---------- itens e valores ----------
+// cupons resgatados (página do produto/loja/checkout) — ids
+const resgatados = () => lsGet('cuponsAtivos', []).map(a => a && a.id || a).filter(Boolean);
+function valores() {
+  const c = calculaPedido(itens.map(i => ({ id: i.id, var: i.var, qtd: i.qtd })), resgatados(), false);
+  const taxa = Math.max(0, ...itens.map(i => i.p.freteValor || 0));
+  const freteGratis = itens.every(i => i.p.freteGratis);
+  const envio = freteGratis ? 0 : taxa;
+  const total = Math.round((c.total + envio) * 100) / 100;
+  return { sub: c.sub, orig: c.orig, prod: c.descProduto, cupons: c.cupons, totalCupons: c.totalCupons, taxa, envio, freteGratis, total,
+    economia: Math.round((c.orig + taxa - total) * 100) / 100, n: c.n, linhas: c.linhas };
+}
+function render() {
+  const vazio = !itens.length;
+  document.body.classList.toggle('vazio', vazio);
+  if (vazio) { $('itens').innerHTML = '<div class="cart-vazio"><b>Seu carrinho está vazio</b><p>Que tal dar uma olhada nos produtos da loja?</p><a href="../coqueteleira-element/index.html">Ver produtos</a></div>'; return; }
+  $('itens').innerHTML = itens.map((i, k) => {
+    const off = i.precoDe ? Math.round((1 - i.preco / i.precoDe) * 100) : 0;
+    return `<div class="item"><img src="${imagemCheckout(i.img)}" alt=""><div class="bd">
+      <h3>${i.p.titulo}</h3>${i.var ? `<div class="var">${i.var}</div>` : ''}<span class="tag">Devolução gratuita</span>
+      <div class="ip"><div><div class="p">${brl(i.preco)}</div>${off ? `<s>${brl(i.precoDe)}</s> <span class="off">-${off}%</span>` : ''}</div>
+      <div class="qty"><button data-q="-1" data-k="${k}" aria-label="${i.qtd <= 1 ? 'Remover item' : 'Diminuir'}">−</button><span>${i.qtd}</span><button data-q="1" data-k="${k}" ${i.qtd >= 12 ? 'disabled' : ''} aria-label="Aumentar">+</button></div></div>
+    </div></div>`;
+  }).join('<div style="height:12px"></div>');
+  const v = valores();
+  const faltam = cuponsDisponiveis(itens.map(i => i.id)).filter(c => !c.auto && !resgatados().includes(c.id)).length;
+  $('descLoja').innerHTML = (v.freteGratis ? '<span class="chip f">Frete grátis</span>' : '') + (v.totalCupons ? `<span class="chip d">- ${brl(v.totalCupons)}</span>` : '') + (faltam ? `<span class="chip r">${faltam} ${faltam === 1 ? 'cupom' : 'cupons'} para resgatar</span>` : '');
+  const pz = P0 && P0.prazo || [4, 8], d1 = new Date(), d2 = new Date(); d1.setDate(d1.getDate() + pz[0]); d2.setDate(d2.getDate() + pz[1]);
+  const M = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const prazo = d1.getMonth() === d2.getMonth() ? `${d1.getDate()}–${d2.getDate()} de ${M[d2.getMonth()]}` : `${d1.getDate()} de ${M[d1.getMonth()]} – ${d2.getDate()} de ${M[d2.getMonth()]}`;
+  $('entrega').innerHTML = `<span>Recebe até ${prazo}</span><span>${v.freteGratis ? `${v.taxa ? `<s>${brl(v.taxa)}</s> ` : ''}<b>Grátis</b>` : `<b>${brl(v.taxa)}</b>`}</span>`;
+  $('sEnv').textContent = brl(v.envio); $('sTaxa').textContent = brl(v.taxa);
+  $('rEnvOff').hidden = !v.freteGratis || !v.taxa; $('sEnvOff').textContent = '- ' + brl(v.taxa);
+  $('finFrete').textContent = v.freteGratis ? ' | Frete grátis' : '';
+  $('sSub').textContent = brl(v.sub - v.totalCupons);
+  $('sOrig').textContent = brl(v.orig);
+  $('sProd').textContent = '- ' + brl(v.prod);
+  $('cupRows').innerHTML = v.cupons.map(c => `<div class="sum sub"><span>${c.produto ? 'Cupom' : 'Cupom da loja'}: ${c.titulo}</span><span class="neg">- ${brl(c.desconto)}</span></div>`).join('');
+  $('sTot').textContent = brl(v.total); $('totFoot').textContent = brl(v.total);
+  $('totLbl').textContent = `Total (${v.n} ${v.n === 1 ? 'item' : 'itens'})`;
+  $('saveTx').textContent = `Parabéns! Você está economizando ${brl(v.economia)} neste pedido.`;
+  $('birdVal').textContent = brl(v.economia);
+}
+let desfazer = null;
+$('itens').onclick = e => {
+  const b = e.target.closest('[data-q]'); if (!b) return;
+  const k = +b.dataset.k, i = itens[k], d = +b.dataset.q;
+  if (d < 0 && i.qtd <= 1) {   // "−" com 1 unidade remove o item
+    const removido = itens.splice(k, 1)[0];
+    salvaCarrinho(); render(); avisoRemovido(removido, k);
+    return;
+  }
+  i.qtd = Math.max(1, Math.min(12, i.qtd + d));
+  salvaCarrinho(); render();
+};
+function avisoRemovido(item, k) {
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  const t = document.createElement('div'); t.className = 'toast';
+  t.innerHTML = 'Item removido · <button style="border:none;background:none;color:#ff8fab;font-weight:700;font:inherit;padding:0 0 0 4px">Desfazer</button>';
+  t.querySelector('button').onclick = () => { itens.splice(k, 0, item); salvaCarrinho(); render(); t.remove(); };
+  document.body.appendChild(t); setTimeout(() => t.remove(), 4000);
+}
+$('subT').onclick = () => { $('subT').classList.toggle('closed'); $('subD').hidden = !$('subD').hidden; };
+$('envT').onclick = () => { $('envT').classList.toggle('closed'); $('envD').hidden = !$('envD').hidden; };
+const loader = on => { $('loader').hidden = !on; };
+// "Desconto da loja": mostra os cupons aplicados e os que ainda dá para resgatar
+function cuponsHtml() {
+  const v = valores(), r = resgatados();
+  const aplic = Object.fromEntries(v.cupons.map(c => [c.id, c.desconto]));
+  return cuponsDisponiveis(itens.map(i => i.id)).map(c => {
+    const linha = c.produto ? v.linhas.find(l => l.id === c.produto) : null;
+    const base = linha ? linha.base : v.sub - v.totalCupons;
+    let st;
+    if (aplic[c.id]) st = `<span class="cs-ok">${c.auto ? 'Aplicado automaticamente' : 'Aplicado'} · - ${brl(aplic[c.id])}</span>`;
+    else if (c.auto || r.includes(c.id)) st = `<span class="cs-falta">Resgatado · faltam ${brl(Math.max(0, (c.min || 0) - base))} para valer</span>`;
+    else st = `<button type="button" class="cs-btn" data-resg="${c.id}">Resgatar</button>`;
+    return `<div class="cs"><div class="cs-l"><b>${c.titulo}</b><small>${c.condicao}</small><small class="cs-p">${c.produto ? c.produtoTitulo : 'Toda a loja'}</small></div>${st}</div>`;
+  }).join('') || '<p class="cs-vazio">Nenhum cupom disponível para estes produtos.</p>';
+}
+const abreCupons = () => { $('cupBody').innerHTML = cuponsHtml(); $('cup').hidden = $('cupBg').hidden = false; lock(); };
+const fechaCupons = () => { $('cup').hidden = $('cupBg').hidden = true; lock(); };
+$('descRow').onclick = abreCupons; $('cupX').onclick = fechaCupons; $('cupBg').onclick = fechaCupons;
+$('cupBody').onclick = e => {
+  const b = e.target.closest('[data-resg]'); if (!b) return;
+  const a = lsGet('cuponsAtivos', []); if (!a.some(x => (x.id || x) === b.dataset.resg)) a.push({ id: b.dataset.resg }); lsSet('cuponsAtivos', a);
+  render(); $('cupBody').innerHTML = cuponsHtml(); toast('Cupom resgatado e aplicado');
+};
+$('notaBtn').onclick = () => { $('nota').hidden = !$('nota').hidden; if (!$('nota').hidden) $('nota').focus(); };
+function tickExp() {
+  const now = new Date(), end = new Date(now); end.setHours(24, 0, 0, 0);
+  const t = Math.floor((end - now) / 1000);
+  $('cupExp').textContent = [t / 3600, t % 3600 / 60, t % 60].map(x => String(Math.floor(x)).padStart(2, '0')).join(':');
+}
+tickExp(); setInterval(tickExp, 1000);
+render();
+// rastreio: checkout aberto
+const dadosPedido = () => { const v = valores(); return { value: v.total, content_ids: itens.map(i => i.id), contents: itens.map(i => ({ id: i.id, quantity: i.qtd, item_price: i.preco })), num_items: v.n }; };
+if (itens.length) window.rastrear && rastrear('InitiateCheckout', dadosPedido());
+
+// ---------- endereço / conta do cliente ----------
+// Ao salvar o endereço a conta do cliente é criada neste aparelho e no banco (/api/conta, com e-mail de boas-vindas via Resend).
+const UFN = { AC: 'Acre', AL: 'Alagoas', AP: 'Amapá', AM: 'Amazonas', BA: 'Bahia', CE: 'Ceará', DF: 'Distrito Federal', ES: 'Espírito Santo', GO: 'Goiás', MA: 'Maranhão', MT: 'Mato Grosso', MS: 'Mato Grosso do Sul', MG: 'Minas Gerais', PA: 'Pará', PB: 'Paraíba', PR: 'Paraná', PE: 'Pernambuco', PI: 'Piauí', RJ: 'Rio de Janeiro', RN: 'Rio Grande do Norte', RS: 'Rio Grande do Sul', RO: 'Rondônia', RR: 'Roraima', SC: 'Santa Catarina', SP: 'São Paulo', SE: 'Sergipe', TO: 'Tocantins' };
+let cliente = lsGet('cliente', null);
+function mostraEndereco() {
+  const tem = !!(cliente && cliente.endereco);
+  $('endVazio').hidden = tem; $('endCheio').hidden = !tem;
+  if (tem) {
+    const e = cliente.endereco;
+    const tel = cliente.telefone.replace(/\D/g, ''), telM = `(+55)${tel.slice(0, 2)}${'*'.repeat(Math.max(0, tel.length - 4))}${tel.slice(-2)}`;
+    $('endTx').innerHTML = `<b>${cliente.nome}, ${telM}</b><span>${e.rua}, ${e.numero}${e.comp ? ' ' + e.comp : ''}, ${e.bairro}, ${e.cidade}, ${UFN[e.uf] || e.uf}, ${e.cep.replace(/\D/g, '')}</span>`;
+  }
+}
+mostraEndereco();
+const UFS = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+$('fUf').insertAdjacentHTML('beforeend', UFS.map(u => `<option>${u}</option>`).join(''));
+const cpfOk = c => { c = c.replace(/\D/g, ''); if (c.length !== 11 || /^(\d)\1+$/.test(c)) return false; const dv = n => { let s = 0; for (let i = 0; i < n; i++) s += +c[i] * (n + 1 - i); const r = s * 10 % 11; return r === 10 ? 0 : r; }; return dv(9) === +c[9] && dv(10) === +c[10]; };
+function valida() {
+  const v = id => $(id).value.trim();
+  const ok = v('fNome').split(/\s+/).length >= 2 && v('fTel').replace(/\D/g, '').length >= 10 && /^\S+@\S+\.\S+$/.test(v('fEmail'))
+    && v('fCep').replace(/\D/g, '').length === 8 && v('fUf') && v('fCid') && v('fBai') && v('fRua') && v('fNum') && cpfOk(v('fCpf'));
+  $('cpfLbl').classList.toggle('err', v('fCpf').replace(/\D/g, '').length === 11 && !cpfOk(v('fCpf')));
+  $('salvar').disabled = !ok;
+}
+['fNome', 'fTel', 'fEmail', 'fCep', 'fCid', 'fBai', 'fRua', 'fNum', 'fComp', 'fCpf'].forEach(id => $(id).addEventListener('input', valida));
+$('fUf').addEventListener('change', valida);
+$('fTel').addEventListener('input', e => { const d = e.target.value.replace(/\D/g, '').slice(0, 11); e.target.value = d.length > 6 ? `(${d.slice(0, 2)}) ${d.slice(2, d.length - 4)}-${d.slice(-4)}` : d.length > 2 ? `(${d.slice(0, 2)}) ${d.slice(2)}` : d; valida(); });
+$('fCpf').addEventListener('input', e => { const d = e.target.value.replace(/\D/g, '').slice(0, 11); e.target.value = d.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2'); valida(); });
+$('fCep').addEventListener('input', async e => {
+  const d = e.target.value.replace(/\D/g, '').slice(0, 8);
+  e.target.value = d.length > 5 ? d.slice(0, 5) + '-' + d.slice(5) : d;
+  if (d.length !== 8) return;
+  $('cepHint').textContent = 'Buscando endereço…'; loader(true);
+  try {
+    let r = null;
+    try { const x = await fetch(`https://brasilapi.com.br/api/cep/v2/${d}`); if (x.ok) { const j = await x.json(); r = { rua: j.street, bairro: j.neighborhood, cidade: j.city, uf: j.state }; } } catch (e2) {}
+    if (!r) { const j = await (await fetch(`https://viacep.com.br/ws/${d}/json/`)).json(); if (j.erro) throw 0; r = { rua: j.logradouro, bairro: j.bairro, cidade: j.localidade, uf: j.uf }; }
+    preenche(r);
+    $('cepHint').textContent = 'Endereço encontrado. Confira e preencha o número.'; $('fNum').focus();
+  } catch (err) { $('cepHint').textContent = 'CEP não encontrado. Preencha o endereço manualmente.'; }
+  loader(false); valida();
+});
+// preenche os campos vindos do CEP / da localização (sem apagar o que a pessoa já digitou)
+function preenche(r) {
+  if (r.rua) $('fRua').value = r.rua;
+  if (r.bairro) $('fBai').value = r.bairro;
+  if (r.cidade) $('fCid').value = r.cidade;
+  if (r.uf && UFS.includes(r.uf)) $('fUf').value = r.uf;
+  if (r.cep && !$('fCep').value) $('fCep').value = r.cep.replace(/\D/g, '').replace(/^(\d{5})(\d{3})$/, '$1-$2');
+  if (r.numero && !$('fNum').value) $('fNum').value = r.numero;
+}
+// estado e cidade já sugeridos pela localização do IP (api/geo)
+async function sugereIp() {
+  if ($('fUf').value || $('fCid').value) return;
+  try {
+    const g = JSON.parse(sessionStorage.getItem('geo') || 'null') || await (await fetch('/api/geo')).json();
+    const UF_POR_NOME = Object.fromEntries(Object.entries(UFN).map(([k, v]) => [v, k]));
+    if (g && g.pais === 'BR') { if (!$('fCid').value && g.cidade) $('fCid').value = g.cidade; const uf = UF_POR_NOME[g.estado] || g.estado; if (UFS.includes(uf) && !$('fUf').value) $('fUf').value = uf; }
+  } catch (e) {}
+}
+$('fPad').onclick = () => { const on = !$('fPad').classList.contains('on'); $('fPad').classList.toggle('on', on); $('fPad').setAttribute('aria-checked', on); };
+
+// abrir/fechar a tela de endereço com o "voltar" interceptado (passarinho)
+let addrAberto = false;
+function abreEndereco() {
+  if (cliente) {
+    const e = cliente.endereco || {};
+    Object.entries({ fNome: cliente.nome, fTel: cliente.telefone, fEmail: cliente.email, fCpf: cliente.cpf, fCep: e.cep, fUf: e.uf, fCid: e.cidade, fBai: e.bairro, fRua: e.rua, fNum: e.numero, fComp: e.comp })
+      .forEach(([id, v]) => $(id).value = v || '');
+  }
+  valida(); sugereIp();
+  $('dlgEnd').hidden = true; $('addr').hidden = false; addrAberto = true; lock();
+  history.pushState({ addr: 1 }, '');
+}
+function fechaEndereco() {
+  $('addr').hidden = true; $('dlgBird').hidden = true; addrAberto = false; lock();
+  if (history.state && history.state.addr) history.back();
+}
+const passarinho = () => { $('dlgBird').hidden = false; lock(); };
+addEventListener('popstate', () => {
+  if (addrAberto) { history.pushState({ addr: 1 }, ''); passarinho(); }   // "voltar" do celular → passarinho
+});
+$('addrBack').onclick = passarinho;
+$('birdCont').onclick = () => { $('dlgBird').hidden = true; lock(); };
+$('birdNao').onclick = fechaEndereco;
+$('addEnd').onclick = abreEndereco; $('altEnd').onclick = abreEndereco; $('dlgAdd').onclick = abreEndereco;
+$('maisTarde').onclick = () => { $('dlgEnd').hidden = true; lock(); };
+$('salvar').onclick = async () => {
+  const v = id => $(id).value.trim(), nova = !cliente;
+  cliente = { nome: v('fNome'), telefone: v('fTel'), email: v('fEmail').toLowerCase(), cpf: v('fCpf'), criadoEm: (cliente && cliente.criadoEm) || new Date().toISOString(),
+    endereco: { cep: v('fCep'), uf: v('fUf'), cidade: v('fCid'), bairro: v('fBai'), rua: v('fRua'), numero: v('fNum'), comp: v('fComp'), padrao: $('fPad').classList.contains('on') } };
+  // conta no servidor (1ª vez → e-mail de boas-vindas). Se falhar, segue com a conta deste aparelho.
+  loader(true);
+  await fetch('/api/conta', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cliente) }).catch(() => {});
+  loader(false);
+  lsSet('cliente', cliente);
+  window.rastreioAtualizaCliente && rastreioAtualizaCliente();
+  fechaEndereco(); mostraEndereco();
+  toast(nova ? `Conta criada! Bem-vindo(a), ${cliente.nome.split(' ')[0]}` : 'Endereço atualizado');
+};
+$('back').onclick = () => history.length > 1 ? history.back() : (location.href = '../loja.html/index.html');
+if (!cliente) { $('dlgEnd').hidden = false; lock(); }
+
+// ---------- finalizar pedido com pagamento na entrega ----------
+let pedidoEmEnvio = false;
+$('fin').onclick = () => {
+  if (!itens.length) return toast('Seu carrinho está vazio');
+  if (!cliente || !cliente.endereco) { $('dlgEnd').hidden = false; lock(); return; }
+  window.rastrear && rastrear('AddPaymentInfo', dadosPedido());
+  registrarPedidoEntrega();
+};
+async function registrarPedidoEntrega() {
+  if (pedidoEmEnvio) return;
+  pedidoEmEnvio = true;
+  $('fin').disabled = true;
+  $('orderBody').innerHTML = '<div class="ok"><div class="ck"><span class="order-loading" aria-hidden="true"></span></div><h2>Finalizando seu pedido…</h2><p>Aguarde só um instante.</p></div>';
+  $('order').hidden = false; lock();
+  try {
+    const lojaSlug = location.pathname.match(/^\/l\/([^/]+)/);
+    const endpoint = lojaSlug ? `/api/pedidos/entrega/${encodeURIComponent(lojaSlug[1])}` : '/api/pedidos/entrega';
+    const r = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        itens: itens.map(i => ({ id: i.id, var: i.var, qtd: i.qtd })),
+        cupons: resgatados(),
+        cliente
+      })
+    });
+    const resposta = await r.text();
+    let data;
+    try { data = JSON.parse(resposta); }
+    catch {
+      if (r.status === 403 || /^\s*forbidden\b/i.test(resposta)) {
+        concluirPedidoLocal();
+        return;
+      }
+      throw new Error(`Resposta inválida do servidor ao registrar o pedido (HTTP ${r.status}).`);
+    }
+    if (r.status === 403 || /^forbidden$/i.test(data.error || '')) {
+      concluirPedidoLocal();
+      return;
+    }
+    if (!r.ok) throw new Error(data.error || 'Não foi possível registrar o pedido.');
+    if (!data.pedido || !Number.isFinite(data.amount)) throw new Error('Resposta do pedido inválida.');
+    concluirPedidoEntrega({ pedido: data.pedido, total: data.amount / 100 });
+  } catch (e) {
+    if (e instanceof TypeError) {
+      concluirPedidoLocal();
+      return;
+    }
+    pedidoEmEnvio = false;
+    $('orderBody').innerHTML = '<div class="ok"><h2>Não foi possível registrar o pedido</h2><p id="orderError"></p><button class="retry" id="retryOrder" type="button">Tentar novamente</button></div>';
+    $('orderError').textContent = e.message || 'Verifique sua conexão e tente novamente.';
+    $('retryOrder').onclick = registrarPedidoEntrega;
+    $('fin').disabled = false;
+  }
+}
+function concluirPedidoLocal() {
+  const v = valores();
+  const protocolo = 'LOCAL-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2, 6).toUpperCase();
+  concluirPedidoEntrega({ pedido: protocolo, total: v.total, local: true });
+}
+function concluirPedidoEntrega(d) {
+  const endereco = cliente.endereco || {};
+  const enderecoTexto = [
+    endereco.rua && `${endereco.rua}${endereco.numero ? `, ${endereco.numero}` : ''}`,
+    endereco.comp,
+    endereco.bairro,
+    [endereco.cidade, endereco.uf].filter(Boolean).join(' - '),
+    endereco.cep && `CEP ${endereco.cep}`,
+  ].filter(Boolean).join(', ');
+  const produtosTexto = itens.map(i =>
+    `- ${i.p.titulo}${i.var ? ` (${i.var})` : ''} | ${i.qtd} x ${brl(i.preco)}`
+  ).join('\n');
+  const mensagem = [
+    'Olá! Quero confirmar meu pedido com pagamento na entrega.',
+    `Protocolo: ${d.pedido}`,
+    '',
+    'DADOS DO CLIENTE',
+    `Nome: ${cliente.nome || ''}`,
+    `Telefone: ${cliente.telefone || ''}`,
+    `E-mail: ${cliente.email || ''}`,
+    `CPF: ${cliente.cpf || ''}`,
+    '',
+    'PRODUTOS',
+    produtosTexto,
+    '',
+    'ENDEREÇO DE ENTREGA',
+    enderecoTexto,
+    `Total do pedido: ${brl(d.total)}`,
+    d.local ? 'O pedido não foi registrado automaticamente no site. Solicito confirmação pelo suporte.' : '',
+  ].filter(Boolean).join('\n');
+  itens = []; salvaCarrinho(); render();
+  $('orderBody').innerHTML = `<div class="ok"><div class="ck"><svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
+    <h2>${d.local ? 'Pedido pronto para confirmar' : 'Pedido recebido!'}</h2>
+    <p id="orderInstructions"></p>
+    <p>Protocolo ${d.pedido} · ${brl(d.total)}<br>Pague quando receber o pedido.</p>
+    <a class="support-link" id="confirmWhatsapp" target="_blank" rel="noopener noreferrer">Confirmar pedido pelo WhatsApp</a>
+    <a href="../coqueteleira-element/index.html">Continuar comprando</a></div>`;
+  $('orderInstructions').textContent = d.local
+    ? 'O pedido não foi enviado automaticamente à loja. Envie os dados pelo WhatsApp para solicitar a confirmação do suporte.'
+    : 'Para confirmar seu pedido, envie os dados ao suporte pelo WhatsApp.';
+  $('confirmWhatsapp').href = `https://wa.me/5511933287952?text=${encodeURIComponent(mensagem)}`;
+}
+</script>
+
+
+</body></html>
